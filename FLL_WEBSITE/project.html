@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIABLO ASSASSINS | Innovation Project</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,700&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+
+        [data-theme="dark"] {
+            --bg: #060709; --panel: #10141d; --panel-border: #1e2638;
+            --accent: #FF6622; --accent-glow: rgba(255, 102, 34, 0.3);
+            --text: #f1f5f9; --text-heading: #ffffff; --muted: #94a3b8;
+            --header-bg: rgba(6, 7, 9, 0.85); --card-bg: #0c1017; --card-border: #1a2333;
+            --dropdown-bg: #10141d; --dropdown-border: #1e2638;
+        }
+        [data-theme="light"] {
+            --bg: #f8fafc; --panel: #ffffff; --panel-border: #e2e8f0;
+            --accent: #FF6622; --accent-glow: rgba(255, 102, 34, 0.2);
+            --text: #334155; --text-heading: #0f172a; --muted: #64748b;
+            --header-bg: rgba(248, 250, 252, 0.85); --card-bg: #ffffff; --card-border: #cbd5e1;
+            --dropdown-bg: #ffffff; --dropdown-border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        /* HEADER & NAVIGATION */
+        header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--header-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--panel-border); }
+        
+        .nav { 
+            max-width: 1280px; 
+            margin: 0 auto; 
+            width: 100%; 
+            padding: 16px 24px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+        }
+
+        .brand { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 2rem; letter-spacing: 1.5px; color: var(--text-heading); text-decoration: none; }
+        .brand span { color: var(--accent); }
+
+        .nav-right { display: flex; align-items: center; gap: 24px; }
+
+        .nav-dropdown-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--accent);
+            border-radius: 8px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: opacity 0.2s ease;
+        }
+        .nav-dropdown-wrapper:hover { opacity: 0.95; }
+
+        .nav-btn-link {
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 10px 16px 10px 20px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .nav-arrow-btn {
+            background: transparent;
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            padding: 10px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .nav-arrow-btn .chevron { transform: rotate(0deg); transition: transform 0.3s ease; }
+        .nav-dropdown-wrapper.active .nav-arrow-btn .chevron { transform: rotate(180deg); }
+
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background-color: var(--dropdown-bg);
+            border: 1px solid var(--dropdown-border);
+            border-radius: 8px;
+            min-width: 170px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            overflow: hidden;
+            padding: 6px;
+        }
+
+        .nav-dropdown-menu a {
+            color: var(--text-heading);
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .nav-dropdown-menu a:hover { background-color: var(--accent); color: #ffffff; }
+        .nav-dropdown-wrapper.active .nav-dropdown-menu { display: block; }
+
+        .nav-link { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: color 0.2s ease; }
+        .nav-link:hover, .nav-link.active { color: var(--accent); }
+
+        .theme-toggle-btn { 
+            background: var(--panel); 
+            border: 1px solid var(--panel-border); 
+            color: var(--text-heading); 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+        }
+
+        main { max-width: 1280px; margin: 0 auto; width: 100%; padding: 120px 24px 60px; flex: 1; }
+
+        /* BACK TO HOME BUTTON - MATCHING EXACT MONOSPACE LOOK */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #8c9dae;
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-weight: 500;
+            font-size: 1rem;
+            letter-spacing: 4px;
+            text-decoration: none;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: #ffffff;
+        }
+
+        .header-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+        .kicker { color: var(--accent); font-weight: 700; letter-spacing: 2.5px; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 4px; display: block; }
+        .page-title { font-family: 'Barlow Condensed', sans-serif; font-size: 3.5rem; font-weight: 800; color: var(--text-heading); line-height: 1; }
+
+        .stats-group { display: flex; gap: 12px; }
+        .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 24px; border-radius: 8px; text-align: center; }
+        .stat-val { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1; }
+        .stat-lbl { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; }
+        
+        .card-header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-subtitle { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px; }
+
+        .feature-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .feature-list li { position: relative; padding-left: 20px; color: var(--text); font-size: 0.95rem; line-height: 1.5; }
+        .feature-list li::before { content: "•"; color: var(--accent); font-size: 1.2rem; position: absolute; left: 0; top: -2px; }
+
+        .img-display-box {
+            width: 100%;
+            height: 280px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        .img-display-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--panel-border); background: var(--panel); margin-top: 60px; }
+
+        .pop-out { opacity: 0; animation: slowPopOut 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes slowPopOut {
+            0% { opacity: 0; transform: translateY(20px) scale(0.97); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-container { grid-template-columns: 1fr; }
+            .header-section { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav">
+            <a href="index.html" class="brand">DIABLO <span>ASSASSINS</span></a>
+            <div class="nav-right">
+                <div class="nav-dropdown-wrapper" id="navDropdown">
+                    <a href="robot game.html" class="nav-btn-link">Robot Game</a>
+                    <button class="nav-arrow-btn" id="robotGameBtn" type="button" aria-label="Toggle Submenu">
+                        <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="nav-dropdown-menu" id="navDropdownMenu">
+                        <a href="route overview.html">Route Overview</a>
+                        <a href="robot base.html">Robot Base</a>
+                        <a href="route 1.html">Route 1</a>
+                        <a href="route 2.html">Route 2</a>
+                        <a href="route 3.html">Route 3</a>
+                        <a href="route 4.html">Route 4</a>
+                        <a href="route 5.html">Route 5</a>
+                        <a href="route 6.html">Route 6</a>
+                        <a href="route 7.html">Route 7</a>
+                        <a href="route 8.html">Route 8</a>
+                        <a href="route 9.html">Route 9</a>
+                    </div>
+                </div>
+
+                <a href="innovation.html" class="nav-link active">Innovation Project</a>
+
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme">
+                    <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="M4.93 4.93l1.41 1.41"></path>
+                        <path d="M17.66 17.66l1.41 1.41"></path>
+                        <path d="M2 12h2"></path>
+                        <path d="M20 12h2"></path>
+                        <path d="M6.34 17.66l-1.41 1.41"></path>
+                        <path d="M19.07 4.93l-1.41 1.41"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- BACK TO HOME BUTTON -->
+        <a href="index.html" class="back-btn">&#x2190; BACK TO HOME</a>
+
+        <div class="header-section pop-out" style="animation-delay: 0.1s;">
+            <div>
+                <span class="kicker">FIRST AGE // UNEARTHED</span>
+                <h1 class="page-title">INNOVATION PROJECT</h1>
+            </div>
+            <div class="stats-group">
+                <div class="stat-box">
+                    <div class="stat-val" id="expertVal">0</div>
+                    <div class="stat-lbl">EXPERTS CONSULTED</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" id="testsVal">0</div>
+                    <div class="stat-lbl">USER TESTS</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <!-- PROBLEM IDENTIFICATION -->
+            <div class="card pop-out" style="animation-delay: 0.2s;">
+                <div class="card-header-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    1. THE PROBLEM
+                </div>
+                <p class="card-subtitle">
+                    Enter the core problem your team identified related to archaeology, artifact preservation, or historical discovery:
+                </p>
+                <ul class="feature-list">
+                    <li><strong>Key Issue:</strong> Describe what artifact or historical site issue you are solving.</li>
+                    <li><strong>Impact:</strong> Explain how this problem affects archaeologists, museums, or local communities.</li>
+                    <li><strong>Current Limitations:</strong> Why existing solutions are not effective enough.</li>
+                </ul>
+                <div class="img-display-box">
+                    <img src="path/to/problem-diagram.png" alt="Problem Statement Visual">
+                </div>
+            </div>
+
+            <!-- OUR INNOVATIVE SOLUTION -->
+            <div class="card pop-out" style="animation-delay: 0.3s;">
+                <div class="card-header-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    2. OUR SOLUTION
+                </div>
+                <p class="card-subtitle">
+                    Overview of the innovative device, software, or system developed by Diablo Assassins:
+                </p>
+                <ul class="feature-list">
+                    <li><strong>Concept:</strong> Explanation of your invention and how it functions.</li>
+                    <li><strong>Innovation Factor:</strong> What makes your solution unique compared to existing methods.</li>
+                    <li><strong>Key Features:</strong> Technical breakdown of materials, sensors, or app interfaces used.</li>
+                </ul>
+                <div class="img-display-box">
+                    <img src="path/to/solution-prototype.png" alt="Solution Prototype Image">
+                </div>
+            </div>
+
+            <!-- SHARING & EXPERT FEEDBACK -->
+            <div class="card pop-out" style="animation-delay: 0.4s;">
+                <div class="card-header-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    3. EXPERT FEEDBACK & SHARING
+                </div>
+                <p class="card-subtitle">
+                    How we validated our idea with experts and shared our findings with the community:
+                </p>
+                <ul class="feature-list">
+                    <li><strong>Experts Consulted:</strong> Archaeologists, museum curators, or engineers who reviewed the design.</li>
+                    <li><strong>Key Insights:</strong> Critical suggestions received from professionals.</li>
+                    <li><strong>Community Outreach:</strong> Presentations given to schools, public exhibitions, or online platforms.</li>
+                </ul>
+                <div class="img-display-box">
+                    <img src="path/to/sharing-event.png" alt="Expert Presentation Image">
+                </div>
+            </div>
+
+            <!-- ITERATION & PROTOTYPING -->
+            <div class="card pop-out" style="animation-delay: 0.5s;">
+                <div class="card-header-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    4. ITERATION & TESTING
+                </div>
+                <p class="card-subtitle">
+                    The evolution of our project from early sketch to final prototype based on testing data:
+                </p>
+                <ul class="feature-list">
+                    <li><strong>Prototype V1:</strong> Initial build/design and testing results.</li>
+                    <li><strong>Improvements Made:</strong> Design refinements added after addressing flaws.</li>
+                    <li><strong>Final Testing:</strong> Validation proving the final design successfully solves the problem.</li>
+                </ul>
+                <div class="img-display-box">
+                    <img src="path/to/prototype-iterations.png" alt="Prototype Testing & Iterations">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p style="color:var(--muted); font-size:0.85rem;">© 2026 Diablo Assassins. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+
+        const sunIcon = `
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="M4.93 4.93l1.41 1.41"></path>
+            <path d="M17.66 17.66l1.41 1.41"></path>
+            <path d="M1 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="M6.34 17.66l-1.41 1.41"></path>
+            <path d="M19.07 4.93l-1.41 1.41"></path>
+        `;
+        const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+        themeIcon.innerHTML = savedTheme === 'dark' ? sunIcon : moonIcon;
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeIcon.innerHTML = newTheme === 'dark' ? sunIcon : moonIcon;
+        });
+
+        const navDropdown = document.getElementById('navDropdown');
+        const robotGameBtn = document.getElementById('robotGameBtn');
+
+        robotGameBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navDropdown.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!navDropdown.contains(e.target)) {
+                navDropdown.classList.remove('active');
+            }
+        });
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsedTime = currentTime - startTime;
+                const progress = Math.min(elapsedTime / duration, 1);
+                const easedProgress = 1 - Math.pow(1 - progress, 2);
+                const currentValue = Math.floor(start + (end - start) * easedProgress);
+                obj.textContent = currentValue;
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                }
+            }
+            requestAnimationFrame(updateCounter);
+        }
+
+        window.addEventListener('load', () => {
+            animateValue('expertVal', 0, 5, 2000);
+            animateValue('testsVal', 0, 12, 2000);
+        });
+    </script>
+</body>
+</html>

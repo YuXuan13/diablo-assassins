@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIABLO ASSASSINS | Robot Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,700&family=Inter:wght@400;500;600;700&display=swap');
+
+        /* DARK THEME (DEFAULT) */
+        [data-theme="dark"] {
+            --bg: #060709;
+            --panel: #080b10;
+            --panel-border: #161c28;
+            --accent: #FF6622;
+            --accent-glow: rgba(255, 102, 34, 0.35);
+            --gold: #FFD700;
+            --gold-glow: rgba(255, 215, 0, 0.35);
+            --purple: #A855F7;
+            --purple-glow: rgba(168, 85, 247, 0.35);
+            --text: #f1f5f9;
+            --text-heading: #ffffff;
+            --muted: #8b949e;
+            --header-bg: rgba(6, 7, 9, 0.85);
+            --banner-bg: #090c12;
+            --card-shadow: rgba(0, 0, 0, 0.6);
+            --dropdown-bg: #10141d;
+            --dropdown-border: #1e2638;
+        }
+
+        /* LIGHT THEME */
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --panel: #ffffff;
+            --panel-border: #e2e8f0;
+            --accent: #FF6622;
+            --accent-glow: rgba(255, 102, 34, 0.2);
+            --gold: #D97706;
+            --gold-glow: rgba(217, 119, 6, 0.2);
+            --purple: #9333EA;
+            --purple-glow: rgba(147, 51, 234, 0.2);
+            --text: #334155;
+            --text-heading: #0f172a;
+            --muted: #64748b;
+            --header-bg: rgba(248, 250, 252, 0.85);
+            --banner-bg: #f1f5f9;
+            --card-shadow: rgba(0, 0, 0, 0.08);
+            --dropdown-bg: #ffffff;
+            --dropdown-border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            line-height: 1.5; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* SCROLL PROGRESS BAR */
+        .scroll-progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            background: transparent; z-index: 101;
+        }
+        .scroll-progress-bar {
+            height: 100%; background: var(--accent); width: 0%;
+            box-shadow: 0 0 10px var(--accent-glow); transition: width 0.1s ease-out;
+        }
+
+        /* FADE & SLIDE ANIMATIONS */
+        .fade-in {
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        /* BACK TO TOP BUTTON */
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; width: 48px; height: 48px;
+            background: var(--panel); border: 1px solid var(--accent); border-radius: 50%;
+            color: var(--accent); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 999; opacity: 0; visibility: hidden;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px var(--card-shadow);
+        }
+        .back-to-top.show { opacity: 1; visibility: visible; }
+        .back-to-top:hover {
+            background: var(--accent); color: #fff; transform: translateY(-4px);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* NAV HEADER */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: var(--header-bg); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--panel-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .nav {
+            max-width: 1280px; margin: 0 auto; padding: 14px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        
+        .brand-link { text-decoration: none; color: inherit; display: inline-block; }
+        .brand-link:hover .brand { opacity: 0.85; }
+        .brand { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.8rem; letter-spacing: 1.5px; color: var(--text-heading); transition: opacity 0.2s ease; }
+        .brand span { color: var(--accent); }
+        
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-links { display: flex; gap: 8px; align-items: center; }
+
+        /* DROPDOWN STYLES MATCHING ROUTE 1 - ROUTE 9 */
+        .nav-dropdown-wrapper { 
+            position: relative; 
+            display: inline-flex; 
+            align-items: center;
+            background: var(--accent);
+            border-radius: 8px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: opacity 0.2s ease;
+        }
+        .nav-dropdown-wrapper:hover { opacity: 0.95; }
+
+        .nav-btn-link {
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 10px 16px 10px 20px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .nav-arrow-btn {
+            background: transparent;
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            padding: 10px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .nav-arrow-btn .chevron { transform: rotate(0deg); transition: transform 0.3s ease; }
+        .nav-dropdown-wrapper.active .nav-arrow-btn .chevron { transform: rotate(180deg); }
+
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background-color: var(--dropdown-bg);
+            border: 1px solid var(--dropdown-border);
+            border-radius: 8px;
+            min-width: 170px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            overflow: hidden;
+            padding: 6px;
+        }
+
+        .nav-dropdown-menu a {
+            color: var(--text-heading);
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .nav-dropdown-menu a:hover { background-color: var(--accent); color: #ffffff; }
+        .nav-dropdown-wrapper.active .nav-dropdown-menu { display: block; }
+
+        .standard-nav-btn {
+            background: transparent; 
+            border: 1px solid transparent; 
+            color: var(--muted);
+            padding: 8px 18px; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            font-size: 0.9rem;
+            text-decoration: none; 
+            transition: all 0.2s ease;
+            display: inline-flex; 
+            align-items: center;
+        }
+
+        .standard-nav-btn:hover { color: var(--text-heading); }
+
+        /* THEME TOGGLE BUTTON */
+        .theme-toggle-btn {
+            background: var(--panel); border: 1px solid var(--panel-border);
+            color: var(--text-heading); width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .theme-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* HERO LAYOUT */
+        .robot-hero-section {
+            max-width: 1280px; margin: 0 auto; padding: 140px 24px 60px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+        }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px; color: var(--muted);
+            text-decoration: none; font-size: 0.8rem; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; margin-bottom: 28px; transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent); }
+        .kicker { color: var(--accent); font-weight: 800; letter-spacing: 3px; font-size: 0.85rem; text-transform: uppercase; display: block; margin-bottom: 12px; }
+        .robot-hero-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(3.2rem, 6vw, 5.5rem); font-weight: 800; line-height: 0.95; letter-spacing: 0.5px; color: var(--text-heading); margin-bottom: 20px; }
+        .robot-hero-desc { color: var(--muted); font-size: 1.1rem; max-width: 520px; line-height: 1.6; }
+        .robot-photo-card { width: 100%; height: 420px; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px var(--card-shadow); display: flex; align-items: center; justify-content: center; }
+        .robot-photo-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* SECTION 01: ROBOT BASE */
+        .robot-base-section { max-width: 1280px; margin: 0 auto; padding: 60px 24px; }
+        .base-kicker { color: var(--accent); font-weight: 700; font-size: 0.85rem; letter-spacing: 2.5px; text-transform: uppercase; display: block; margin-bottom: 8px; }
+        .base-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.5rem, 5vw, 3.8rem); font-weight: 800; color: var(--text-heading); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; }
+        .base-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+        .base-card { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 16px; padding: 32px 28px; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 0 4px 15px var(--card-shadow); }
+        .base-card:hover { border-color: rgba(255, 102, 34, 0.5); transform: translateY(-3px); }
+        .base-icon { width: 44px; height: 44px; border: 1px solid rgba(255, 102, 34, 0.4); border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(255, 102, 34, 0.05); margin-bottom: 24px; }
+        .base-card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.75rem; font-weight: 800; color: var(--text-heading); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 16px; }
+        .base-card-desc { color: var(--muted); font-size: 1rem; line-height: 1.6; }
+        .dim-list { display: flex; flex-direction: column; gap: 16px; margin-top: 4px; }
+        .dim-item { display: flex; justify-content: space-between; align-items: center; }
+        .dim-label { color: var(--muted); font-size: 1rem; }
+        .dim-value { color: var(--text-heading); font-weight: 800; font-size: 1.05rem; }
+
+        /* SECTION 02: MISSION ROUTES */
+        .mission-routes-section { max-width: 1280px; margin: 0 auto; padding: 60px 24px; }
+        .routes-kicker { color: var(--accent); font-weight: 700; font-size: 0.85rem; letter-spacing: 2.5px; text-transform: uppercase; display: block; margin-bottom: 8px; }
+        .routes-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.5rem, 5vw, 3.8rem); font-weight: 800; color: var(--text-heading); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; }
+
+        /* SECTION ACTION BUTTON STYLES */
+        .section-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: transparent;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            margin-bottom: 32px;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 10px rgba(255, 102, 34, 0.15);
+        }
+
+        .section-action-btn:hover {
+            background: var(--accent);
+            color: #ffffff;
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* TOTAL METRICS OVERVIEW CARD */
+        .total-metrics-card {
+            background: var(--panel);
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 0 25px var(--accent-glow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .total-metrics-info h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .total-metrics-info p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .total-metrics-values {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        .metric-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .metric-value {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+        }
+        .metric-value.points {
+            color: var(--gold);
+        }
+
+        /* FILTERS */
+        .filter-bar { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+        .filter-btn { background: var(--panel); border: 1px solid var(--panel-border); color: var(--text); padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease; }
+        .filter-btn:hover { border-color: var(--accent); }
+        .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+
+        /* STRATEGY BANNER */
+        .strategy-banner { background: var(--banner-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 32px 24px; text-align: center; margin-bottom: 32px; }
+        .strategy-title { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text-heading); margin-bottom: 6px; }
+        .strategy-desc { color: var(--muted); font-size: 0.92rem; margin-bottom: 20px; }
+        .badge-list { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+        .badge-item { 
+            background: rgba(255, 102, 34, 0.1); border: 1px solid rgba(255, 102, 34, 0.3); 
+            color: var(--accent); padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; 
+            font-weight: 700; cursor: pointer; transition: all 0.2s ease; 
+        }
+        .badge-item:hover, .badge-item.active { 
+            background: var(--accent); color: #fff; transform: translateY(-2px); box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        /* ROUTES GRID */
+        .routes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        @media (max-width: 1024px) { .routes-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 640px) { 
+            .routes-grid { grid-template-columns: 1fr; } 
+            .robot-hero-section { grid-template-columns: 1fr; padding-top: 110px; }
+            .total-metrics-card { flex-direction: column; align-items: flex-start; }
+            .total-metrics-values { width: 100%; justify-content: space-between; }
+            .metric-box { align-items: flex-start; }
+        }
+
+        /* ROUTE CARD */
+        .route-card { 
+            position: relative; background: var(--panel); border: 1px solid var(--panel-border); 
+            border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; 
+            transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            scroll-margin-top: 100px; box-shadow: 0 4px 15px var(--card-shadow);
+        }
+        .route-card:hover, .route-card.highlighted { 
+            border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 0 25px var(--accent-glow); 
+        }
+
+        .route-card.hidden { display: none; }
+        .route-img-wrapper { width: 100%; height: 220px; background: var(--panel-border); overflow: hidden; position: relative; }
+        .route-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .route-content { padding: 22px 20px; display: flex; flex-direction: column; flex-grow: 1; }
+        .route-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .route-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--text-heading); }
+        .route-tags { display: flex; gap: 6px; }
+        .pts-tag, .time-tag { background: rgba(255, 102, 34, 0.15); border: 1px solid rgba(255, 102, 34, 0.3); color: var(--accent); font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; }
+        .route-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.5; margin-bottom: 16px; }
+
+        /* ROUTE STRATEGY LINK */
+        .view-strategy-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-decoration: none;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: auto;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .view-strategy-link:hover {
+            transform: translateX(4px);
+            opacity: 0.9;
+        }
+
+        /* SECTION 03: STANDOUT ANALYSIS */
+        .standout-section { max-width: 1280px; margin: 0 auto; padding: 60px 24px 100px; }
+        .standout-kicker { color: var(--accent); font-weight: 700; font-size: 0.85rem; letter-spacing: 2.5px; text-transform: uppercase; display: block; margin-bottom: 8px; }
+        .standout-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.5rem, 5vw, 3.8rem); font-weight: 800; color: var(--text-heading); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 40px; }
+        
+        .standout-container { display: flex; flex-direction: column; gap: 32px; }
+        .standout-card {
+            background: var(--panel); border: 1px solid var(--panel-border); border-radius: 16px;
+            padding: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+            transition: border-color 0.3s ease; box-shadow: 0 4px 15px var(--card-shadow);
+        }
+        .standout-card:hover { border-color: rgba(255, 102, 34, 0.4); }
+        .standout-img-box { width: 100%; height: 380px; border-radius: 12px; overflow: hidden; background: var(--panel-border); border: 1px solid var(--panel-border); }
+        .standout-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .standout-content { display: flex; flex-direction: column; }
+        
+        .standout-heading {
+            font-family: 'Barlow Condensed', sans-serif; font-size: 2.3rem; font-weight: 800;
+            color: var(--text-heading); letter-spacing: 0.5px; margin-bottom: 24px; text-transform: uppercase;
+        }
+        .standout-heading span { color: var(--accent); }
+        
+        .analysis-list { display: flex; flex-direction: column; gap: 18px; }
+        .analysis-item { color: var(--muted); font-size: 0.98rem; line-height: 1.6; }
+        .analysis-item strong { color: var(--text-heading); font-weight: 700; }
+
+        footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--panel-border); background: var(--panel); }
+
+        @media (max-width: 900px) {
+            .standout-card { grid-template-columns: 1fr; gap: 24px; }
+            .standout-card.reverse .standout-img-box { order: -1; }
+            .standout-img-box { height: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scroll-progress-container">
+        <div class="scroll-progress-bar" id="progressBar"></div>
+    </div>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to Top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <header>
+        <div class="nav">
+            <a href="index.html" class="brand-link">
+                <div class="brand">DIABLO <span>ASSASSINS</span></div>
+            </a>
+            <div class="nav-right">
+                <div class="nav-links">
+                    
+                    <div class="nav-dropdown-wrapper" id="navDropdown">
+                        <a href="robot.html" class="nav-btn-link">Robot Game</a>
+                        <button class="nav-arrow-btn" id="robotGameBtn" type="button" aria-label="Toggle Submenu">
+                            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="nav-dropdown-menu" id="navDropdownMenu">
+                            <a href="robot base1.html">Robot Base</a>
+                            <a href="route overview1.html">Route Overview</a>
+                        </div>
+                    </div>
+
+                    <a href="project.html" class="standard-nav-btn">Innovation Project</a>
+                </div>
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme">
+                    <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="robot-hero-section">
+            <div class="robot-hero-text fade-in">
+                <a href="index.html" class="back-link">&larr; BACK TO HOME</a>
+                <span class="kicker">ROBOT GAME</span>
+                <h1 class="robot-hero-title">ROUTES & ROBOT BASE</h1>
+                <p class="robot-hero-desc">Our chassis breakdown, the mission routes we run, and the engineering behind our two standout attachments.</p>
+            </div>
+            <div class="robot-photo-card fade-in">
+                <img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Robot Base.png"	 alt="Diablo Assassins Robot Photo">
+            </div>
+        </section>
+
+        <section class="robot-base-section" id="robot-base">
+            <span class="base-kicker fade-in">01 / ROBOT BASE</span>
+            <h2 class="base-title fade-in">ENGINEERED FOR COMPACT CONTROL</h2>
+            
+            <a href="robot base1.html" class="section-action-btn fade-in">Explore Our Robot</a>
+
+            <div class="base-grid">
+                <div class="base-card fade-in">
+                    <div class="base-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF6622" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>
+                    </div>
+                    <h3 class="base-card-title">HARDWARE CORE</h3>
+                    <p class="base-card-desc">Powered by the LEGO Spike Prime Hub. Driven by 2 Medium Motors, 2 Color Sensors for line alignment, 2 Large Motors for attachments, and 43.2×22ZR high-traction tires.</p>
+                </div>
+
+                <div class="base-card fade-in">
+                    <div class="base-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF6622" stroke-width="2"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0l12.6 12.6z"/><line x1="6.5" y1="11.5" x2="8.5" y2="9.5"/><line x1="10.5" y1="15.5" x2="12.5" y2="13.5"/><line x1="14.5" y1="19.5" x2="16.5" y2="17.5"/></svg>
+                    </div>
+                    <h3 class="base-card-title">CHASSIS DIMENSIONS</h3>
+                    <div class="dim-list">
+                        <div class="dim-item"><span class="dim-label">Length</span><span class="dim-value">19 Technic Beams</span></div>
+                        <div class="dim-item"><span class="dim-label">Width</span><span class="dim-value">17 Technic Beams</span></div>
+                        <div class="dim-item"><span class="dim-label">Height</span><span class="dim-value">8 Technic Beams</span></div>
+                    </div>
+                </div>
+
+                <div class="base-card fade-in">
+                    <div class="base-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF6622" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    </div>
+                    <h3 class="base-card-title">DESIGN PHILOSOPHY</h3>
+                    <p class="base-card-desc">Based on the "Laura" chassis profile. Features central wheel drive, clean cable management channels, and an easily accessible rear-mounted hub.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mission-routes-section">
+            <span class="routes-kicker fade-in">02 / MISSION ROUTES</span>
+            <h2 class="routes-title fade-in">ATTACHMENTS & EXECUTION</h2>
+
+            <a href="route overview1.html" class="section-action-btn fade-in">See Route Overview</a>
+
+            <div class="total-metrics-card fade-in">
+                <div class="total-metrics-info">
+                    <h3>Full Match Execution Summary</h3>
+                    <p>Combined performance metrics across all planned route runs.</p>
+                </div>
+                <div class="total-metrics-values">
+                    <div class="metric-box">
+                        <span class="metric-label">Total Time</span>
+                        <span class="metric-value">2m 23.54s</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">Total Score</span>
+                        <span class="metric-value points">545 PTS</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-bar fade-in">
+                <button class="filter-btn active" data-filter="all">All Routes</button>
+                <button class="filter-btn" data-filter="high-points">High Points (>50)</button>
+                <button class="filter-btn" data-filter="fast">Fast (&lt;15s)</button>
+            </div>
+
+            <div class="strategy-banner fade-in">
+                <h3 class="strategy-title">Field Strategy Map</h3>
+                <p class="strategy-desc">Click or hover over any route badge to navigate and highlight the route card.</p>
+                <div class="badge-list">
+                    <span class="badge-item" data-route="1">Route 1 (110 PTS)</span>
+                    <span class="badge-item" data-route="2">Route 2 (70 PTS)</span>
+                    <span class="badge-item" data-route="3">Route 3 (40 PTS)</span>
+                    <span class="badge-item" data-route="4">Route 4 (45 PTS)</span>
+                    <span class="badge-item" data-route="5">Route 5 (60 PTS)</span>
+                    <span class="badge-item" data-route="6">Route 6 (90 PTS)</span>
+                    <span class="badge-item" data-route="7">Route 7 (30 PTS)</span>
+                    <span class="badge-item" data-route="8">Route 8 (10 PTS)</span>
+                    <span class="badge-item" data-route="9">Route 9 (20 PTS)</span>
+                </div>
+            </div>
+
+            <div class="routes-grid">
+                <div class="route-card fade-in" data-pts="110" data-time="20.11" data-route-id="1">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 1 Attachmentt.png" alt="Route 01" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 01</h3>
+                            <div class="route-tags"><span class="pts-tag">110 PTS</span><span class="time-tag">20.11s</span></div>
+                        </div>
+                        <p class="route-desc">Wedge lift, combined forklift with arm lift, and wall-follow mechanism. Completes Missions 03, 04, and 13.</p>
+                        <a href="route1.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="route-card fade-in" data-pts="70" data-time="18.25" data-route-id="2">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 2 Attachment.png" alt="Route 02" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 02</h3>
+                            <div class="route-tags"><span class="pts-tag">70 PTS</span><span class="time-tag">18.25s</span></div>
+                        </div>
+                        <p class="route-desc">Clip-and-pull module, gear lift, and passive aligner. Targets Missions 01, 02, and 15.</p>
+                        <a href="route2.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="route-card fade-in" data-pts="40" data-time="4.00" data-route-id="3">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 3 Attachment.png" alt="Route 03" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 03</h3>
+                            <div class="route-tags"><span class="pts-tag">40 PTS</span><span class="time-tag">4.00s</span></div>
+                        </div>
+                        <p class="route-desc">Extended rigid arm utilizing rubber-band tension for a fast pendulum swing action.</p>
+                        <a href="route3.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="route-card fade-in" data-pts="45" data-time="17.89" data-route-id="4">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 4 Attachment.png" alt="Route 04" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 04</h3>
+                            <div class="route-tags"><span class="pts-tag">45 PTS</span><span class="time-tag">17.89s</span></div>
+                        </div>
+                        <p class="route-desc">Features a small retention cage, gear-driven wheel, and passive mechanical aligner.</p>
+                        <a href="route4.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="route-card fade-in" data-pts="60" data-time="11.28" data-route-id="5">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 5 Attachment.png" alt="Route 05" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 05</h3>
+                            <div class="route-tags"><span class="pts-tag">60 PTS</span><span class="time-tag">11.28s</span></div>
+                        </div>
+                        <p class="route-desc">Linkage arm with integrated axle, swing-and-lift mechanism, and passive rubber-band quick trigger.</p>
+                        <a href="route5.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="route-card fade-in" data-pts="90" data-time="16.10" data-route-id="6">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 6 Attachment.png" alt="Route 06" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 06</h3>
+                            <div class="route-tags"><span class="pts-tag">90 PTS</span><span class="time-tag">16.10s</span></div>
+                        </div>
+                        <p class="route-desc">Scissor linkage arm, linear gear rack, protective cage, and passive corner aligner.</p>
+                        <a href="route6.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="route-card fade-in" data-pts="30" data-time="8.11" data-route-id="7">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 7 Attachment.png" alt="Route 07" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 07</h3>
+                            <div class="route-tags"><span class="pts-tag">30 PTS</span><span class="time-tag">8.11s</span></div>
+                        </div>
+                        <p class="route-desc">Precision linkage arm and guide alignment frame tailored specifically for the Silo mission.</p>
+                        <a href="route7.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="route-card fade-in" data-pts="10" data-time="16.44" data-route-id="8">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 8Attachment.png" alt="Route 08" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 08</h3>
+                            <div class="route-tags"><span class="pts-tag">10 PTS</span><span class="time-tag">16.44s</span></div>
+                        </div>
+                        <p class="route-desc">Dual-pivoting lift arm with custom gripper assembly built for site marking and Minecart interaction.</p>
+                        <a href="route8.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="route-card fade-in" data-pts="20" data-time="12.24" data-route-id="9">
+                    <div class="route-img-wrapper"><img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 9 Attachement.png" alt="Route 09" class="route-img"></div>
+                    <div class="route-content">
+                        <div class="route-header">
+                            <h3 class="route-name">Route 09</h3>
+                            <div class="route-tags"><span class="pts-tag">20 PTS</span><span class="time-tag">12.24s</span></div>
+                        </div>
+                        <p class="route-desc">Localized containment cage for target release and rapid return.</p>
+                        <a href="route9.html" class="view-strategy-link">VIEW ROUTE STRATEGY &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="standout-section">
+            <span class="standout-kicker fade-in">03 / STANDOUT ANALYSIS</span>
+            <h2 class="standout-title fade-in">KEY ATTACHMENT MECHANICS</h2>
+
+            <div class="standout-container">
+                <div class="standout-card fade-in">
+                    <div class="standout-img-box">
+                        <img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 2 Attachment.png" alt="Most Impressive: Route 02">
+                    </div>
+                    <div class="standout-content">
+                        <h3 class="standout-heading">MOST IMPRESSIVE: <span>ROUTE 02</span></h3>
+                        <div class="analysis-list">
+                            <p class="analysis-item"><strong>High Efficiency:</strong> Yields 70 points in under 20 seconds of execution time.</p>
+                            <p class="analysis-item"><strong>Dual-Action Capability:</strong> Multi-gear setup allows one motor to drive two distinct attachment functions.</p>
+                            <p class="analysis-item"><strong>Passive Alignment:</strong> Relies on mechanical indexing guide structures for precision without software lag.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="standout-card reverse fade-in">
+                    <div class="standout-content">
+                        <h3 class="standout-heading">MOST CHALLENGING: <span>ROUTE 01</span></h3>
+                        <div class="analysis-list">
+                            <p class="analysis-item"><strong>Testing Rigor:</strong> Required the highest number of iteration cycles due to multi-zone navigation tolerances.</p>
+                            <p class="analysis-item"><strong>Precision Requirements:</strong> Heavily reliant on exact motor encoder readings across long distances.</p>
+                            <p class="analysis-item"><strong>Wall-Following Integration:</strong> Uses a physical roller attachment to ride the field walls and correct drift errors.</p>
+                        </div>
+                    </div>
+                    <div class="standout-img-box">
+                        <img src="C:\Users\Lenovo\OneDrive\Desktop\FLL_WEBSITE\Assets\Attachment + Robot\Route 1 Attachmentt.png" alt="Most Challenging: Route 01">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p style="color: var(--muted); font-size: 0.9rem;">&copy; 2026 DIABLO ASSASSINS. Built for competition excellence.</p>
+    </footer>
+
+    <script>
+        // --- Theme Toggle ---
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        htmlElement.setAttribute('data-theme', savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // --- Nav Dropdown (Matching Route 1 - Route 9 logic) ---
+        const navDropdown = document.getElementById('navDropdown');
+        const robotGameBtn = document.getElementById('robotGameBtn');
+
+        robotGameBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navDropdown.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!navDropdown.contains(e.target)) {
+                navDropdown.classList.remove('active');
+            }
+        });
+
+        // --- Scroll Progress Bar & Back to Top ---
+        const progressBar = document.getElementById('progressBar');
+        const backToTopBtn = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            progressBar.style.width = scrollPercent + '%';
+
+            if (scrollTop > 400) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // --- Intersection Observer for Fade-In ---
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
+
+        const fadeObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        fadeElements.forEach(el => fadeObserver.observe(el));
+
+        // --- Route Filtering ---
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const routeCards = document.querySelectorAll('.route-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.getAttribute('data-filter');
+
+                routeCards.forEach(card => {
+                    const pts = parseFloat(card.getAttribute('data-pts'));
+                    const time = parseFloat(card.getAttribute('data-time'));
+
+                    if (filter === 'all') {
+                        card.classList.remove('hidden');
+                    } else if (filter === 'high-points') {
+                        pts > 50 ? card.classList.remove('hidden') : card.classList.add('hidden');
+                    } else if (filter === 'fast') {
+                        time < 15 ? card.classList.remove('hidden') : card.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // --- Field Strategy Badges Interaction ---
+        const badgeItems = document.querySelectorAll('.badge-item');
+
+        badgeItems.forEach(badge => {
+            badge.addEventListener('click', () => {
+                const routeId = badge.getAttribute('data-route');
+                const targetCard = document.querySelector(`.route-card[data-route-id="${routeId}"]`);
+
+                if (targetCard) {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+                    routeCards.forEach(c => c.classList.remove('hidden'));
+
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    routeCards.forEach(c => c.classList.remove('highlighted'));
+                    badgeItems.forEach(b => b.classList.remove('active'));
+
+                    targetCard.classList.add('highlighted');
+                    badge.classList.add('active');
+                    setTimeout(() => {
+                        targetCard.classList.remove('highlighted');
+                        badge.classList.remove('active');
+                    }, 2500);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

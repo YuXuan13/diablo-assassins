@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Base Specifications | DIABLO ASSASSINS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,700&family=Inter:wght@400;500;600;700&display=swap');
+
+        /* COLOR VARIABLES */
+        [data-theme="dark"] {
+            --bg: #060709;
+            --panel: #0b0f17;
+            --panel-card: #121824;
+            --panel-border: #1e293b;
+            --accent: #FF6622;
+            --accent-glow: rgba(255, 102, 34, 0.25);
+            --text: #94a3b8;
+            --text-heading: #ffffff;
+            --muted: #64748b;
+            --header-bg: rgba(6, 7, 9, 0.85);
+            --badge-bg: rgba(255, 102, 34, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --panel: #ffffff;
+            --panel-card: #f1f5f9;
+            --panel-border: #cbd5e1;
+            --accent: #FF6622;
+            --accent-glow: rgba(255, 102, 34, 0.15);
+            --text: #475569;
+            --text-heading: #0f172a;
+            --muted: #64748b;
+            --header-bg: rgba(248, 250, 252, 0.85);
+            --badge-bg: rgba(255, 102, 34, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* HEADER & NAV */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: var(--header-bg); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--panel-border);
+        }
+        .nav {
+            max-width: 1280px; margin: 0 auto; padding: 14px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand-link { text-decoration: none; color: inherit; }
+        .brand { 
+            font-family: 'Barlow Condensed', sans-serif; 
+            font-weight: 800; font-size: 1.8rem; 
+            letter-spacing: 1.5px; color: var(--text-heading); 
+        }
+        .brand span { color: var(--accent); }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-links { display: flex; align-items: center; gap: 12px; }
+        .nav-btn {
+            background: transparent; border: 1px solid transparent; color: var(--muted);
+            padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 0.9rem;
+            text-decoration: none; transition: all 0.2s ease; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .nav-btn:hover { color: var(--text-heading); }
+
+        /* SPLIT-BUTTON DROPDOWN CONTAINER */
+        .dropdown {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            background: var(--accent);
+            border-radius: 8px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            overflow: visible;
+        }
+
+        .dropdown-link {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-decoration: none;
+            padding: 10px 16px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .dropdown-toggle {
+            background: transparent;
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 10px 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-arrow {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* DROPDOWN MENU BOX (SQUARE RECTANGLE CORNERS) */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            width: 100%;
+            min-width: 180px;
+            background: #0b0e14;
+            border: 1px solid #1a2332;
+            border-radius: 8px;
+            padding: 6px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-4px);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        }
+
+        .dropdown.open .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        /* DROPDOWN ITEMS WITH RECTANGLE HOVER */
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 14px;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 4px; /* Standard non-rounded rectangle */
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .theme-toggle-btn {
+            background: var(--panel); border: 1px solid var(--panel-border);
+            color: var(--text-heading); width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .theme-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* HERO AREA */
+        .page-container { max-width: 1280px; margin: 0 auto; padding: 120px 24px 80px; }
+        
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px; color: var(--muted);
+            text-decoration: none; font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px;
+            text-transform: uppercase; margin-bottom: 24px; transition: color 0.2s ease;
+        }
+        .back-link:hover { color: var(--accent); }
+
+        .hero-section { margin-bottom: 60px; }
+        .kicker { 
+            color: var(--accent); font-weight: 700; font-size: 0.9rem; 
+            letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 8px; 
+        }
+        .hero-title { 
+            font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.8rem, 6vw, 4.5rem); 
+            font-weight: 800; color: var(--text-heading); text-transform: uppercase; line-height: 1.1; 
+            margin-bottom: 16px;
+        }
+        .hero-lead { max-width: 800px; font-size: 1.15rem; color: var(--text); margin-bottom: 32px; }
+
+        /* QUICK STATS STRIP */
+        .stats-strip {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; background: var(--panel); border: 1px solid var(--panel-border);
+            padding: 24px; border-radius: 16px; margin-bottom: 60px;
+        }
+        .stat-item { text-align: center; border-right: 1px solid var(--panel-border); padding: 0 12px; }
+        .stat-item:last-child { border-right: none; }
+        .stat-val { 
+            font-family: 'Barlow Condensed', sans-serif; font-size: 2.5rem; 
+            font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 4px; 
+        }
+        .stat-lbl { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }
+
+        /* SECTION TILES GRID */
+        .section-title {
+            font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem;
+            font-weight: 800; color: var(--text-heading); text-transform: uppercase;
+            margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+        }
+        .section-title::before {
+            content: ''; display: block; width: 4px; height: 28px; background: var(--accent); border-radius: 2px;
+        }
+
+        .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 32px; margin-bottom: 60px; }
+        
+        .detail-card {
+            background: var(--panel); border: 1px solid var(--panel-border);
+            border-radius: 16px; padding: 32px; transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .detail-card:hover { border-color: rgba(255, 102, 34, 0.4); }
+
+        .card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .card-icon {
+            width: 48px; height: 48px; border-radius: 12px; background: var(--badge-bg);
+            border: 1px solid rgba(255, 102, 34, 0.3); display: flex; align-items: center; justify-content: center;
+        }
+        .card-h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--text-heading); text-transform: uppercase; }
+
+        /* ITEM LIST INSIDE CARDS */
+        .component-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+        .component-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--panel-border); }
+        .component-item:last-child { border-bottom: none; padding-bottom: 0; }
+        
+        .comp-name { 
+            font-weight: 700; 
+            color: #ffffff !important; 
+        }
+        .comp-detail { font-size: 0.9rem; color: var(--muted); text-align: right; }
+
+        /* DIMENSIONS TABLE STYLING */
+        .dim-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .dim-table th, .dim-table td { padding: 12px 0; text-align: left; border-bottom: 1px solid var(--panel-border); }
+        
+        .dim-table th { 
+            font-size: 0.85rem; 
+            text-transform: uppercase; 
+            color: var(--muted); 
+            letter-spacing: 1px; 
+        }
+        .dim-table th:first-child {
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+
+        .dim-table td { 
+            color: var(--text); 
+            font-weight: 500; 
+        }
+        .dim-table td:first-child {
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+        .dim-table td:last-child { 
+            text-align: right; 
+            font-weight: 800; 
+            color: var(--accent) !important; 
+        }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box {
+            background: var(--panel-card); border-left: 4px solid var(--accent);
+            padding: 20px; border-radius: 0 12px 12px 0; margin-top: 20px;
+        }
+        .highlight-box h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; color: var(--text-heading); margin-bottom: 6px; }
+        .highlight-box p { font-size: 0.92rem; color: var(--text); }
+
+        footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--panel-border); background: var(--panel); }
+
+        @media (max-width: 768px) {
+            .stats-strip { grid-template-columns: 1fr 1fr; }
+            .stat-item { border-right: none; border-bottom: 1px solid var(--panel-border); padding: 12px 0; }
+            .stat-item:last-child { border-bottom: none; }
+            .details-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav">
+            <a href="index.html" class="brand-link">
+                <div class="brand">DIABLO <span>ASSASSINS</span></div>
+            </a>
+            <div class="nav-right">
+                <div class="nav-links">
+                    
+                    <!-- SPLIT BUTTON -->
+                    <div class="dropdown" id="robotGameDropdown">
+                        <a href="robot.html" class="dropdown-link">Robot Game</a>
+                        <button class="dropdown-toggle" id="dropdownToggleBtn" aria-label="Toggle Menu">
+                            <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="robot-base.html">Robot Base</a>
+                            <a href="route-overview.html">Route Overview</a>
+                        </div>
+                    </div>
+
+                    <a href="project.html" class="nav-btn">Innovation Project</a>
+                </div>
+
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme">
+                    <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-container">
+        <!-- NAVIGATION BACK LINK -->
+        <a href="robot.html" class="back-link">&larr; Back to Robot Game</a>
+
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <span class="kicker">01 / ROBOT BASE</span>
+            <h1 class="hero-title">Engineered For Compact Control</h1>
+            <p class="hero-lead">An in-depth technical breakdown of the "Laura" chassis profile—optimized for rapid maneuvering, precise line squaring, modular attachment changes, and efficient cable management.</p>
+        </section>
+
+        <!-- STATS STRIP WITH COUNTERS -->
+        <div class="stats-strip">
+            <div class="stat-item">
+                <div class="stat-val counter" data-target="4">0</div>
+                <div class="stat-lbl">Total Motors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val counter" data-target="2">0</div>
+                <div class="stat-lbl">Color Sensors</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val counter-dim" data-w="19" data-h="17">0x0</div>
+                <div class="stat-lbl">Footprint (Beams)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val counter-float" data-target="43.2" data-unit="mm">0.0mm</div>
+                <div class="stat-lbl">Tire Diameter</div>
+            </div>
+        </div>
+
+        <!-- DETAILED SECTIONS GRID -->
+        <h2 class="section-title">Core Subsystems</h2>
+        <div class="details-grid">
+            
+            <!-- 1. HARDWARE SPECIFICATIONS -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6622" stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line>
+                        </svg>
+                    </div>
+                    <h3 class="card-h3">Hardware Core</h3>
+                </div>
+                <ul class="component-list">
+                    <li class="component-item">
+                        <span class="comp-name">Control Unit</span>
+                        <span class="comp-detail">LEGO Spike Prime Hub</span>
+                    </li>
+                    <li class="component-item">
+                        <span class="comp-name">Drive Motors</span>
+                        <span class="comp-detail">2× Medium Angular Motors</span>
+                    </li>
+                    <li class="component-item">
+                        <span class="comp-name">Attachment Motors</span>
+                        <span class="comp-detail">2× Large Motors (Top-Mounted)</span>
+                    </li>
+                    <li class="component-item">
+                        <span class="comp-name">Navigation Sensors</span>
+                        <span class="comp-detail">2× Color Sensors (Line Follow/Square)</span>
+                    </li>
+                    <li class="component-item">
+                        <span class="comp-name">Wheel Hubs</span>
+                        <span class="comp-detail">43.2 × 22ZR High-Traction Tires</span>
+                    </li>
+                </ul>
+                <div class="highlight-box">
+                    <h4>Sensor Alignment</h4>
+                    <p>Sensors are positioned directly ahead of the drive wheels to ensure immediate feedback during line-squaring routines.</p>
+                </div>
+            </div>
+
+            <!-- 2. CHASSIS DIMENSIONS & GEOMETRY -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6622" stroke-width="2">
+                            <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0l12.6 12.6z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="card-h3">Dimensions & Layout</h3>
+                </div>
+                <table class="dim-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Beam Count</th>
+                            <th>Est. Millimeters</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Length</td>
+                            <td>19 Technic Beams</td>
+                            <td>~152 mm</td>
+                        </tr>
+                        <tr>
+                            <td>Width</td>
+                            <td>17 Technic Beams</td>
+                            <td>~136 mm</td>
+                        </tr>
+                        <tr>
+                            <td>Height</td>
+                            <td>8 Technic Beams</td>
+                            <td>~64 mm</td>
+                        </tr>
+                        <tr>
+                            <td>Ground Clearance</td>
+                            <td>2 Technic Beams</td>
+                            <td>~16 mm</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="highlight-box">
+                    <h4>Launch Area Fit</h4>
+                    <p>Designed to fit comfortably inside the small launch area without requiring attachment disassembly.</p>
+                </div>
+            </div>
+
+            <!-- 3. DESIGN PHILOSOPHY & FEATURES -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6622" stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="card-h3">Design Philosophy</h3>
+                </div>
+                <ul class="component-list">
+                    <li class="component-item">
+                        <span class="comp-name">Base Profile</span>
+                        <span class="comp-detail">"Laura" Chassis Concept</span>
+                    </li>
+                    <li class="component-item">
+                        <span class="comp-name">Drive Mechanism</span>
+                        <span class="comp-detail">Central Wheel Drive</span>
+                    </li>
+                    <li class="component-item">
+                        <span class="comp-name">Cable Management</span>
+                        <span class="comp-detail">Internal routing channels</span>
+                    </li>
+                    <li class="component-item">
+                        <span class="comp-name">Hub Accessibility</span>
+                        <span class="comp-detail">Rear-mounted swap slot</span>
+                    </li>
+                </ul>
+                <div class="highlight-box">
+                    <h4>Rapid Attachments</h4>
+                    <p>Features top-facing pinless docking ports for instant switching between mission runs.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <p style="color: var(--muted); font-size: 0.9rem;">&copy; 2026 DIABLO ASSASSINS. Built for competition excellence.</p>
+    </footer>
+
+    <script>
+        /* DROPDOWN TOGGLE LOGIC */
+        const dropdownContainer = document.getElementById('robotGameDropdown');
+        const dropdownToggleBtn = document.getElementById('dropdownToggleBtn');
+
+        dropdownToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownContainer.classList.toggle('open');
+        });
+
+        /* CLOSE DROPDOWN WHEN CLICKING OUTSIDE */
+        document.addEventListener('click', (e) => {
+            if (!dropdownContainer.contains(e.target)) {
+                dropdownContainer.classList.remove('open');
+            }
+        });
+
+        /* THEME TOGGLE */
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        htmlElement.setAttribute('data-theme', savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        /* ANIMATED COUNTERS */
+        document.addEventListener("DOMContentLoaded", () => {
+            const runStandardCounter = (el) => {
+                const target = +el.getAttribute('data-target');
+                let current = 0;
+                const duration = 1200;
+                const stepTime = 30;
+                const increment = target / (duration / stepTime);
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        el.innerText = target;
+                        clearInterval(timer);
+                    } else {
+                        el.innerText = Math.floor(current);
+                    }
+                }, stepTime);
+            };
+
+            const runDimensionCounter = (el) => {
+                const targetW = +el.getAttribute('data-w');
+                const targetH = +el.getAttribute('data-h');
+                let curW = 0, curH = 0;
+                const duration = 1200;
+                const stepTime = 30;
+                const incW = targetW / (duration / stepTime);
+                const incH = targetH / (duration / stepTime);
+
+                const timer = setInterval(() => {
+                    curW += incW;
+                    curH += incH;
+                    if (curW >= targetW && curH >= targetH) {
+                        el.innerText = `${targetW}x${targetH}`;
+                        clearInterval(timer);
+                    } else {
+                        el.innerText = `${Math.floor(curW)}x${Math.floor(curH)}`;
+                    }
+                }, stepTime);
+            };
+
+            const runFloatCounter = (el) => {
+                const target = parseFloat(el.getAttribute('data-target'));
+                const unit = el.getAttribute('data-unit') || '';
+                let current = 0;
+                const duration = 1200;
+                const stepTime = 30;
+                const increment = target / (duration / stepTime);
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        el.innerText = target.toFixed(1) + unit;
+                        clearInterval(timer);
+                    } else {
+                        el.innerText = current.toFixed(1) + unit;
+                    }
+                }, stepTime);
+            };
+
+            const observerOptions = { threshold: 0.4 };
+            
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        if (el.classList.contains('counter')) runStandardCounter(el);
+                        if (el.classList.contains('counter-dim')) runDimensionCounter(el);
+                        if (el.classList.contains('counter-float')) runFloatCounter(el);
+                        obs.unobserve(el);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.counter, .counter-dim, .counter-float').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
