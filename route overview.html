@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIABLO ASSASSINS | Routes & Strategy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        [data-theme="dark"] {
+            --bg: #060709; --panel: #10141d; --panel-border: #1e2638;
+            --accent: #FF6622; --accent-glow: rgba(255, 102, 34, 0.3);
+            --text: #f1f5f9; --text-heading: #ffffff; --muted: #94a3b8;
+            --header-bg: rgba(6, 7, 9, 0.85); --card-bg: #0c1017; --card-border: #1a2333;
+            --dropdown-bg: #10141d; --dropdown-border: #1e2638;
+            --card-shadow: rgba(0, 0, 0, 0.6);
+        }
+        [data-theme="light"] {
+            --bg: #f8fafc; --panel: #ffffff; --panel-border: #e2e8f0;
+            --accent: #FF6622; --accent-glow: rgba(255, 102, 34, 0.2);
+            --text: #334155; --text-heading: #0f172a; --muted: #64748b;
+            --header-bg: rgba(248, 250, 252, 0.85); --card-bg: #ffffff; --card-border: #cbd5e1;
+            --dropdown-bg: #ffffff; --dropdown-border: #e2e8f0;
+            --card-shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        /* HEADER & NAVIGATION */
+        header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--header-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--panel-border); }
+        .nav { max-width: 1280px; margin: 0 auto; width: 100%; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .brand { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.8rem; letter-spacing: 1.5px; color: var(--text-heading); text-decoration: none; }
+        .brand span { color: var(--accent); }
+
+        .nav-right { display: flex; align-items: center; gap: 16px; } 
+        .nav-links { display: flex; align-items: center; gap: 12px; }
+
+        /* SPLIT DROPDOWN */
+        .dropdown {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            background: var(--accent);
+            border-radius: 8px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            overflow: visible;
+        }
+
+        .dropdown-link {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-decoration: none;
+            padding: 10px 16px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .dropdown-toggle {
+            background: transparent;
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 10px 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-arrow {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            width: 100%;
+            min-width: 180px;
+            background: #0b0e14;
+            border: 1px solid #1a2332;
+            border-radius: 8px;
+            padding: 6px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-4px);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        }
+
+        .dropdown.open .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 14px;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 4px;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            text-align: left;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--accent);
+            color: #ffffff;
+        }
+
+        /* STANDARD NAV LINK */
+        .nav-link {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover { color: var(--accent); }
+
+        .theme-toggle-btn { background: var(--panel); border: 1px solid var(--panel-border); color: var(--text-heading); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        main { max-width: 1280px; margin: 0 auto; width: 100%; padding: 110px 24px 60px; flex: 1; }
+        
+        /* BACK BUTTON - MATCHES IMAGE EXACTLY (SMALL, BOLD SANS-SERIF, WIDE SPACING, ORANGE HOVER) */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #8c9dae;
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 0.82rem;
+            letter-spacing: 3px;
+            text-decoration: none;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--accent); /* Orange on hover */
+        }
+
+        .section-header { margin-bottom: 32px; }
+        .kicker { color: var(--accent); font-weight: 700; letter-spacing: 2.5px; font-size: 0.8rem; text-transform: uppercase; }
+        .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 3rem; font-weight: 800; color: var(--text-heading); }
+
+        .routes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; }
+        
+        .route-card {
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px;
+            padding: 24px; text-decoration: none; transition: all 0.25s ease;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .route-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 10px 25px var(--accent-glow); }
+
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text-heading); }
+        .badges { display: flex; gap: 8px; }
+        .badge { background: rgba(255, 102, 34, 0.15); border: 1px solid var(--accent); color: var(--accent); font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
+        .card-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
+        .card-action { color: var(--accent); font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+        footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--panel-border); background: var(--panel); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav">
+            <a href="index.html" class="brand">DIABLO <span>ASSASSINS</span></a>
+            
+            <div class="nav-right">
+                <div class="nav-links">
+                    <div class="dropdown" id="robotGameDropdown">
+                        <a href="robot.html" class="dropdown-link">Robot Game</a>
+                        <button class="dropdown-toggle" id="dropdownToggleBtn" aria-label="Toggle Menu">
+                            <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="robot base.html">Robot Base</a>
+                            <a href="route overview.html">Route Overview</a>
+							
+                        </div>
+                    </div>
+
+                    <a href="project.html" class="nav-link">Innovation Project</a>
+                </div>
+
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Theme">
+                    <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="M4.93 4.93l1.41 1.41"></path>
+                        <path d="M17.66 17.66l1.41 1.41"></path>
+                        <path d="M2 12h2"></path>
+                        <path d="M20 12h2"></path>
+                        <path d="M6.34 17.66l-1.41 1.41"></path>
+                        <path d="M19.07 4.93l-1.41 1.41"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <a href="index.html" class="back-btn">&#x2190; BACK TO HOME</a>
+
+        <div class="section-header">
+            <span class="kicker">MISSION STRATEGY</span>
+            <h1 class="section-title">ROBOT GAME ROUTES</h1>
+        </div>
+
+        <div class="routes-grid" id="routesGrid">
+            <a href="route 1.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 01</div>
+                        <div class="badges"><span class="badge">110 PTS</span><span class="badge">20.11s</span></div>
+                    </div>
+                    <p class="card-desc">Wedge lift, combined forklift with arm lift, and wall-follow mechanism.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+
+            <a href="route 2.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 02</div>
+                        <div class="badges"><span class="badge">70 PTS</span><span class="badge">18.25s</span></div>
+                    </div>
+                    <p class="card-desc">Clip-and-pull module, gear lift, and passive aligner.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+
+            <a href="route 3.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 03</div>
+                        <div class="badges"><span class="badge">40 PTS</span><span class="badge">4.00s</span></div>
+                    </div>
+                    <p class="card-desc">Extended rigid arm utilizing rubber-band tension for a fast pendulum swing action.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+
+            <a href="route 4.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 04</div>
+                        <div class="badges"><span class="badge">45 PTS</span><span class="badge">17.89s</span></div>
+                    </div>
+                    <p class="card-desc">Features a small retention cage, gear-driven wheel, and passive mechanical aligner.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+
+            <a href="route 5.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 05</div>
+                        <div class="badges"><span class="badge">60 PTS</span><span class="badge">11.28s</span></div>
+                    </div>
+                    <p class="card-desc">Linkage arm with integrated axle, swing-and-lift mechanism, and passive rubber-band quick trigger.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+
+            <a href="route 6.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 06</div>
+                        <div class="badges"><span class="badge">90 PTS</span><span class="badge">16.10s</span></div>
+                    </div>
+                    <p class="card-desc">Scissor linkage arm, linear gear rack, protective cage, and passive corner aligner.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+
+            <a href="route 7.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 07</div>
+                        <div class="badges"><span class="badge">30 PTS</span><span class="badge">8.11s</span></div>
+                    </div>
+                    <p class="card-desc">Precision linkage arm and guide alignment frame tailored specifically for the Silo mission.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+
+            <a href="route 8.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 08</div>
+                        <div class="badges"><span class="badge">10 PTS</span><span class="badge">16.44s</span></div>
+                    </div>
+                    <p class="card-desc">Dual-pivoting lift arm with custom gripper assembly built for site marking and Minecart interaction.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+
+            <a href="route 9.html" class="route-card">
+                <div>
+                    <div class="card-top">
+                        <div class="card-title">Route 09</div>
+                        <div class="badges"><span class="badge">20 PTS</span><span class="badge">12.24s</span></div>
+                    </div>
+                    <p class="card-desc">Vertical linkage-type lift arm paired with a localized containment cage for the Forum mission.</p>
+                </div>
+                <div class="card-action">View Route Strategy &rarr;</div>
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p style="color:var(--muted); font-size:0.85rem;">&copy; 2026 Diablo Assassins. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+
+        const sunIcon = `
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="M4.93 4.93l1.41 1.41"></path>
+            <path d="M17.66 17.66l1.41 1.41"></path>
+            <path d="M1 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="M6.34 17.66l-1.41 1.41"></path>
+            <path d="M19.07 4.93l-1.41 1.41"></path>
+        `;
+
+        const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+        themeIcon.innerHTML = savedTheme === 'dark' ? sunIcon : moonIcon;
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeIcon.innerHTML = newTheme === 'dark' ? sunIcon : moonIcon;
+        });
+
+        /* DROPDOWN TOGGLE LOGIC */
+        const dropdownContainer = document.getElementById('robotGameDropdown');
+        const dropdownToggleBtn = document.getElementById('dropdownToggleBtn');
+
+        dropdownToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownContainer.classList.toggle('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdownContainer.contains(e.target)) {
+                dropdownContainer.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>
